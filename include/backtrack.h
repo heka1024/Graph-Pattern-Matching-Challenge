@@ -9,6 +9,7 @@
 #include "candidate_set.h"
 #include "common.h"
 #include "graph.h"
+#include <stack>
 
 class Backtrack {
  public:
@@ -18,11 +19,12 @@ class Backtrack {
   void PrintAllMatches(const Graph &data, const Graph &query,
                        const CandidateSet &cs);
   void PrintMatch(const Graph& data, const Graph& query, 
-                  const CandidateSet& cs, std::vector<bool>& v, 
-                  const size_t it, std::vector<size_t> order);
+                  const CandidateSet& cs, const size_t it);
   void PrintCandidate(const Graph &data, const Graph &query,
                       const CandidateSet &cs);
  private:
+  std::vector<bool> v;
+  std::vector<Vertex> path;
   
 };
 
