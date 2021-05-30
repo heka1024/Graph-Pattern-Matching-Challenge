@@ -19,6 +19,7 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
   for (size_t j = 0; j < cs.GetCandidateSize(0); j++) {
     Vertex candidate = cs.GetCandidate(0, j);
     path.push_back(candidate);
+    v[candidate] = true;
     PrintMatch(data, query, cs, 0);
     v[candidate] = false;
   }
@@ -27,8 +28,6 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query, 
                            const CandidateSet& cs, const size_t it) {
-    v[it] = true;
-
     if (it == query.GetNumVertices() - 1) {
       for(size_t i = 0; i < path.size(); i++) { // 스택 값 출력 - 경로 출력 
 			  cout << path[i] << " ";
@@ -42,8 +41,9 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
       Vertex candidate = cs.GetCandidate(it + 1, j);
       if (!v[candidate]) {
         path.push_back(candidate);
+        v[candidate] = true;
         PrintMatch(data, query, cs, it + 1);
-        v[it + 1] = false;
+        v[candidate] = false;
       }
     }
     // v[it] = false;
