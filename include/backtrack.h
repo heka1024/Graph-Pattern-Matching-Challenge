@@ -17,6 +17,13 @@ class Backtrack {
 
   void PrintAllMatches(const Graph &data, const Graph &query,
                        const CandidateSet &cs);
+  void PrintMatch(const Graph& data, const Graph& query, 
+                  const CandidateSet& cs, std::vector<bool>& v, 
+                  const size_t it, std::vector<size_t> order);
+  void PrintCandidate(const Graph &data, const Graph &query,
+                      const CandidateSet &cs);
+ private:
+  
 };
 
 #endif  // BACKTRACK_H_
