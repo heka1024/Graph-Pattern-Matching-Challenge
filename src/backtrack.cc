@@ -13,7 +13,6 @@ Backtrack::~Backtrack() {}
 
 void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
                                 const CandidateSet &cs) {
-  vector<Vertex> candidates;
   v.resize(data.GetNumVertices(), false);
 
   // for (size_t j = 0; j < cs.GetCandidateSize(0); j++) {
@@ -24,7 +23,7 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
   //   v[candidate] = false;
   // }; 
   
-  PrintMatch(data, query, cs, 0);
+  // PrintMatch(data, query, cs, 0);
 
   BruteForce(data, query, cs);
 }
@@ -33,23 +32,27 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                            const CandidateSet& cs, const size_t it) {
   if (it >= query.GetNumVertices()) {
     for(size_t i = 0; i < path.size() - 1; i++) { // 스택 값 출력 - 경로 출력 
-      cout << path[i] << " ";
-    }      
-    cout << path[it - 1] << "\n";
+      printf("%d ", path[i]);
+    }
+    printf("%d\n", path[it - 1]);      
+    // cout << path[it - 1] << "\n";
     return;
   }
-
   for (size_t i = 0; i < cs.GetCandidateSize(it); i++) {
     const Vertex current_candidate = cs.GetCandidate(it, i);
+    // printf("it %d candidate %d ", it, current_candidate);
+    // printf("path "); PrintVector(path);
     if (v[current_candidate]) {
       return;
     }
     v[current_candidate] = true; path.push_back(current_candidate);
-    bool gotoNext = false;
+    bool gotoNext = true;
 
     for (size_t p = 0; p < it; p++) {
-      if (!(query.IsNeighbor(p, current_candidate) && data.IsNeighbor(path[p], current_candidate))) {
+      // printf("it %d p %d path[p] %d cur %d\n", it, p, path[p], current_candidate);
+      if (query.IsNeighbor(p, it) && !data.IsNeighbor(path[p], current_candidate)) {
         gotoNext = false;
+        break;
       }
     }
 
@@ -147,7 +150,7 @@ bool Backtrack::CheckEmbedding(const Graph &data, const Graph &query,
 void Backtrack::BruteForce(const Graph& data, const Graph& query, 
                 const CandidateSet& cs) {
   vector<Vertex> xs, ys;
-  for (Vertex i = 0; i < data.GetNumVertices(); i++) {
+  for (size_t i = 0; i < data.GetNumVertices(); i++) {
     xs.push_back(i);
     ys.push_back(0);
   }
@@ -173,4 +176,11 @@ void Backtrack::BruteForce(const Graph& data, const Graph& query,
     }
 
   } while (prev_permutation(ys.begin(), ys.end()));
+}
+
+void Backtrack::PrintVector(const vector<Vertex>& xs) {
+  for (const auto& x : xs) {
+    cout << x << " ";
+  }
+  cout << "\n";
 }
