@@ -20,6 +20,8 @@ class Backtrack {
                        const CandidateSet &cs);
   void PrintMatch(const Graph& data, const Graph& query, 
                   const CandidateSet& cs, const size_t it);
+  void DFS(const Graph& data, const Graph& query, 
+                  const CandidateSet& cs, const size_t it);  
   void PrintCandidate(const Graph &data, const Graph &query,
                       const CandidateSet &cs);
   void BruteForce(const Graph &data, const Graph &query,

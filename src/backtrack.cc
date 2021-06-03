@@ -14,18 +14,12 @@ Backtrack::~Backtrack() {}
 void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
                                 const CandidateSet &cs) {
   v.resize(data.GetNumVertices(), false);
-
-  // for (size_t j = 0; j < cs.GetCandidateSize(0); j++) {
-  //   Vertex candidate = cs.GetCandidate(0, j);
-  //   path.push_back(candidate);
-  //   v[candidate] = true;
-  //   PrintMatch(data, query, cs, 0);
-  //   v[candidate] = false;
-  // }; 
   
-  // PrintMatch(data, query, cs, 0);
+  PrintMatch(data, query, cs, 0);
 
-  BruteForce(data, query, cs);
+  // DFS(data, query, cs, 0);
+
+  // BruteForce(data, query, cs);
 }
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query, 
@@ -35,21 +29,18 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
       printf("%d ", path[i]);
     }
     printf("%d\n", path[it - 1]);      
-    // cout << path[it - 1] << "\n";
     return;
   }
   for (size_t i = 0; i < cs.GetCandidateSize(it); i++) {
     const Vertex current_candidate = cs.GetCandidate(it, i);
-    // printf("it %d candidate %d ", it, current_candidate);
-    // printf("path "); PrintVector(path);
+
     if (v[current_candidate]) {
-      return;
+      continue;
     }
     v[current_candidate] = true; path.push_back(current_candidate);
     bool gotoNext = true;
 
     for (size_t p = 0; p < it; p++) {
-      // printf("it %d p %d path[p] %d cur %d\n", it, p, path[p], current_candidate);
       if (query.IsNeighbor(p, it) && !data.IsNeighbor(path[p], current_candidate)) {
         gotoNext = false;
         break;
@@ -61,43 +52,32 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
     }
     v[current_candidate] = false; path.pop_back();
   }
+}
+
+void Backtrack::DFS(const Graph& data, const Graph& query, 
+                           const CandidateSet& cs, const size_t it) {
+  if (it >= query.GetNumVertices()) {
+    for(size_t i = 0; i < path.size() - 1; i++) { // 스택 값 출력 - 경로 출력 
+      printf("%d ", path[i]);
+    }
+    printf("%d\n", path[it - 1]);      
+    return;
+  }
+  PrintVector(path);
+
+  for (size_t i = 0; i < cs.GetCandidateSize(it); i++) {
+    const Vertex current_candidate = cs.GetCandidate(it, i);
+    printf("it %d cur %d\n", it, current_candidate);
+
+    if (v[current_candidate]) {
+      continue;
+    }
+    v[current_candidate] = true; path.push_back(current_candidate);
+    DFS(data, query, cs, it + 1);      
+    v[current_candidate] = false; path.pop_back();
+  }
 
 }
-                             
-//   if (it == query.GetNumVertices() - 1) {
-//     for(size_t i = 0; i < path.size() - 1; i++) { // 스택 값 출력 - 경로 출력 
-//       cout << path[i] << " ";
-//     }      
-//     cout << path[it - 1] << "\n";
-//     path.pop_back();
-//     return;
-//   }
-
-//   for (size_t j = 0; j < cs.GetCandidateSize(it + 1); j++) {
-//     Vertex candidate = cs.GetCandidate(it + 1, j);
-//     bool ok = true;
-//     if (v[candidate]) {
-//       break;
-//     }
-//     // check embedding
-//     for (size_t i = query.GetNeighborStartOffset(it); i < query.GetNeighborEndOffset(it); i++) {
-//       const Vertex n = query.GetNeighbor(i);
-//       if (!data.IsNeighbor(candidate, n)) {
-//         ok = false;
-//         break;          
-//       }
-//     }
-
-//     if (ok) {
-//       path.push_back(candidate);
-//       v[candidate] = true;
-//       PrintMatch(data, query, cs, it + 1);
-//       v[candidate] = false;
-//     }      
-//   }
-//   // v[it] = false;
-//   path.pop_back();
-// }
 
 
 void Backtrack::PrintCandidate(const Graph &data, const Graph &query,
