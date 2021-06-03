@@ -22,6 +22,8 @@ class Backtrack {
                   const CandidateSet& cs, const size_t it);
   void PrintCandidate(const Graph &data, const Graph &query,
                       const CandidateSet &cs);
+  bool CheckEmbedding(const Graph &data, const Graph &query,
+                      const CandidateSet &cs, const std::vector<Vertex>& xs);
  private:
   std::vector<bool> v;
   std::vector<Vertex> path;
