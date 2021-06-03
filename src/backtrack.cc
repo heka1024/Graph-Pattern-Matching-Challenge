@@ -22,62 +22,43 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
   //   v[candidate] = true;
   //   PrintMatch(data, query, cs, 0);
   //   v[candidate] = false;
-  // };
+  // }; 
 
-  vector<Vertex> xs, ys;
-  for (Vertex i = 0; i < data.GetNumVertices(); i++) {
-    xs.push_back(i);
-    ys.push_back(0);
-  }
-
-  for (size_t i = 0; i < query.GetNumVertices(); i++) {
-    ys[i] = 1;
-  }
-
-  do {
-    vector<int> cur;
-    for (size_t i = 0; i < xs.size(); i++) {
-      if (ys[i] == 1) {
-        // cout << xs[i] << " ";
-        cur.push_back(xs[i]);
-      }
-    }
-
-    for (const auto& x : cur) {
-      cout << x << " ";
-    }
-    if (CheckEmbedding(data, query, cs, cur)) {
-      cout << "is embedding";
-    } else {
-      cout << "is not";
-    }
-    cout << "\n";
-
-  } while (prev_permutation(ys.begin(), ys.end()));
-
-  // cout << CheckEmbedding(data, query, cs, {0, 4, 5, 6, 10}) << "\n";
+  BruteForce(data, query, cs);
 }
-
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query, 
                            const CandidateSet& cs, const size_t it) {
     if (it == query.GetNumVertices() - 1) {
-      for(size_t i = 0; i < path.size(); i++) { // 스택 값 출력 - 경로 출력 
+      for(size_t i = 0; i < path.size() - 1; i++) { // 스택 값 출력 - 경로 출력 
 			  cout << path[i] << " ";
-		  }
-      cout << "\n";
+		  }      
+      cout << path[it - 1] << "\n";
       path.pop_back();
       return;
     }
 
     for (size_t j = 0; j < cs.GetCandidateSize(it + 1); j++) {
       Vertex candidate = cs.GetCandidate(it + 1, j);
-      if (!v[candidate]) {
+      bool ok = true;
+      if (v[candidate]) {
+        break;
+      }
+      // check embedding
+      for (size_t i = query.GetNeighborStartOffset(it); i < query.GetNeighborEndOffset(it); i++) {
+        const Vertex n = query.GetNeighbor(i);
+        if (!data.IsNeighbor(candidate, n)) {
+          ok = false;
+          break;          
+        }
+      }
+
+      if (ok) {
         path.push_back(candidate);
         v[candidate] = true;
         PrintMatch(data, query, cs, it + 1);
         v[candidate] = false;
-      }
+      }      
     }
     // v[it] = false;
     path.pop_back();
@@ -129,4 +110,35 @@ bool Backtrack::CheckEmbedding(const Graph &data, const Graph &query,
     }
   }
   return true;
+}
+
+void Backtrack::BruteForce(const Graph& data, const Graph& query, 
+                const CandidateSet& cs) {
+  vector<Vertex> xs, ys;
+  for (Vertex i = 0; i < data.GetNumVertices(); i++) {
+    xs.push_back(i);
+    ys.push_back(0);
+  }
+
+  for (size_t i = 0; i < query.GetNumVertices(); i++) {
+    ys[i] = 1;
+  }
+
+  do {
+    vector<int> cur;
+    for (size_t i = 0; i < xs.size(); i++) {
+      if (ys[i] == 1) {
+        // cout << xs[i] << " ";
+        cur.push_back(xs[i]);
+      }
+    }
+    
+    if (CheckEmbedding(data, query, cs, cur)) {
+      for (const auto& x : cur) {
+        cout << x << " ";
+      }
+      cout << "\n";
+    }
+
+  } while (prev_permutation(ys.begin(), ys.end()));
 }
