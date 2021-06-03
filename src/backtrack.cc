@@ -23,46 +23,78 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
   //   PrintMatch(data, query, cs, 0);
   //   v[candidate] = false;
   // }; 
+  
+  PrintMatch(data, query, cs, 0);
 
   BruteForce(data, query, cs);
 }
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query, 
                            const CandidateSet& cs, const size_t it) {
-    if (it == query.GetNumVertices() - 1) {
-      for(size_t i = 0; i < path.size() - 1; i++) { // 스택 값 출력 - 경로 출력 
-			  cout << path[i] << " ";
-		  }      
-      cout << path[it - 1] << "\n";
-      path.pop_back();
+  if (it >= query.GetNumVertices()) {
+    for(size_t i = 0; i < path.size() - 1; i++) { // 스택 값 출력 - 경로 출력 
+      cout << path[i] << " ";
+    }      
+    cout << path[it - 1] << "\n";
+    return;
+  }
+
+  for (size_t i = 0; i < cs.GetCandidateSize(it); i++) {
+    const Vertex current_candidate = cs.GetCandidate(it, i);
+    if (v[current_candidate]) {
       return;
     }
+    v[current_candidate] = true; path.push_back(current_candidate);
+    bool gotoNext = false;
 
-    for (size_t j = 0; j < cs.GetCandidateSize(it + 1); j++) {
-      Vertex candidate = cs.GetCandidate(it + 1, j);
-      bool ok = true;
-      if (v[candidate]) {
-        break;
+    for (size_t p = 0; p < it; p++) {
+      if (!(query.IsNeighbor(p, current_candidate) && data.IsNeighbor(path[p], current_candidate))) {
+        gotoNext = false;
       }
-      // check embedding
-      for (size_t i = query.GetNeighborStartOffset(it); i < query.GetNeighborEndOffset(it); i++) {
-        const Vertex n = query.GetNeighbor(i);
-        if (!data.IsNeighbor(candidate, n)) {
-          ok = false;
-          break;          
-        }
-      }
-
-      if (ok) {
-        path.push_back(candidate);
-        v[candidate] = true;
-        PrintMatch(data, query, cs, it + 1);
-        v[candidate] = false;
-      }      
     }
-    // v[it] = false;
-    path.pop_back();
+
+    if (gotoNext) {
+      PrintMatch(data, query, cs, it + 1);      
+    }
+    v[current_candidate] = false; path.pop_back();
   }
+
+}
+                             
+//   if (it == query.GetNumVertices() - 1) {
+//     for(size_t i = 0; i < path.size() - 1; i++) { // 스택 값 출력 - 경로 출력 
+//       cout << path[i] << " ";
+//     }      
+//     cout << path[it - 1] << "\n";
+//     path.pop_back();
+//     return;
+//   }
+
+//   for (size_t j = 0; j < cs.GetCandidateSize(it + 1); j++) {
+//     Vertex candidate = cs.GetCandidate(it + 1, j);
+//     bool ok = true;
+//     if (v[candidate]) {
+//       break;
+//     }
+//     // check embedding
+//     for (size_t i = query.GetNeighborStartOffset(it); i < query.GetNeighborEndOffset(it); i++) {
+//       const Vertex n = query.GetNeighbor(i);
+//       if (!data.IsNeighbor(candidate, n)) {
+//         ok = false;
+//         break;          
+//       }
+//     }
+
+//     if (ok) {
+//       path.push_back(candidate);
+//       v[candidate] = true;
+//       PrintMatch(data, query, cs, it + 1);
+//       v[candidate] = false;
+//     }      
+//   }
+//   // v[it] = false;
+//   path.pop_back();
+// }
 
 
 void Backtrack::PrintCandidate(const Graph &data, const Graph &query,
