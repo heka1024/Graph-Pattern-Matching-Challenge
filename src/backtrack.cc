@@ -4,6 +4,8 @@
  */
 
 #include "backtrack.h"
+#include <stack>
+#include <map>
 #define null -1
 
 using namespace std;
@@ -14,10 +16,11 @@ Backtrack::~Backtrack() {}
 void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
                                 const CandidateSet &cs) {
     start = std::chrono::system_clock::now();
+    FindRoot(query, cs);
     Initialize(data, query);
-    PrintMatch(data, query, cs, 0);
-    //std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
-    //printf("elapsed time: %lf [sec], count: %d\n", sec.count(), count);
+    PrintMatch(data, query, cs, root);
+    std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
+    printf("%lf [sec]\n", sec.count());
 }
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query,
@@ -27,13 +30,14 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
             std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
             printf("elapsed time: %lf [sec], count: %d\n", sec.count(), count);
             exit(0);
-            //return;
-        } else if (!path.empty()){
-            //PrintPath();
-            PrintVector(path);
-            count++;
+        } else {
+            vector<Vertex> ans(query.GetNumVertices(), -1);
+            for (size_t i = 0; i < embedded.size(); i++) {
+                ans[embedded[i]] = path[i];
+            }
+            printf("a "); PrintVector(ans);
+            return;
         }
-        return;
     }
 
     for (size_t i = 0; i < cs.GetCandidateSize(qVertex); i++) {
@@ -67,21 +71,15 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
 
 void Backtrack::PrintVector(const vector<Vertex>& xs) {
     for (const auto& x : xs) {
-        cout << x << " ";
-    }
-    cout << "\n";
-}
-
-void Backtrack::PrintPath() {
-    printf("a ");
-    for (const Vertex& u : embedded) {
-        printf("%d ", path[u]);
+        printf("%d ", x);
+        // cout << x << " ";
     }
     printf("\n");
+    // cout << "\n";
 }
 
 Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs) {
-    std::vector<std::pair<size_t, Vertex>> qVertices;
+    vector<pair<size_t, Vertex>> qVertices;
 
     for (Vertex notEmVertex : not_embedded) {
         for (Vertex emVertex : embedded) {
@@ -89,7 +87,8 @@ Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs
             bool extendable = query.IsNeighbor(notEmVertex, emVertex);
 
             if (extendable) {
-                qVertices.emplace_back(std::pair<size_t, Vertex>(cs.GetCandidateSize(notEmVertex), notEmVertex));
+                // qVertices.emplace_back(std::pair<size_t, Vertex>(cs.GetCandidateSize(notEmVertex), notEmVertex));
+                qVertices.emplace_back(make_pair(cs.GetCandidateSize(notEmVertex), notEmVertex));
                 break;
             }
         }
@@ -97,14 +96,49 @@ Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs
 
     if (qVertices.empty()) return null;
 
-    std::make_heap(qVertices.begin(), qVertices.end(), greater<std::pair<size_t, Vertex>>());
+    std::make_heap(qVertices.begin(), qVertices.end(), greater<pair<size_t, Vertex>>());
 
     return qVertices.front().second;
 }
 
+void Backtrack::FindRoot(const Graph &query, const CandidateSet &cs) {
+    for (size_t i = 0; i < query.GetNumVertices(); i++) {
+        if (cs.GetCandidateSize(i) < cs.GetCandidateSize(root)) {
+            root = i;
+        }
+    }
+}
+
 void Backtrack::Initialize(const Graph &data, const Graph &query) {
     v.resize(data.GetNumVertices(), false);
-    for (size_t i = 1; i < query.GetNumVertices(); i++) {
-        not_embedded.push_back((Vertex) i);
+    for (size_t i = 0; i < query.GetNumVertices(); i++) {
+        if (root != (Vertex) i) {
+            not_embedded.push_back((Vertex) i);
+        }
     }
+}
+
+bool Backtrack::CheckEmbedding(const Graph &data, const Graph &query,
+                               const CandidateSet &cs, const vector<Vertex>& xs) {
+    const size_t len = xs.size();
+
+    for (size_t i = 0; i < len; i++) {
+        const Vertex u = i, v = xs[i];
+        // cout << "u " << u << " v " << v << "\n";
+
+        if (data.GetLabel(v) != query.GetLabel(u)) {
+            return false;
+        }
+
+        for (size_t j = query.GetNeighborStartOffset(u); j < query.GetNeighborEndOffset(u); j++) {
+            const Vertex jj = query.GetNeighbor(j);
+            const Vertex n = static_cast<Vertex>(xs[jj]);
+
+            // cout << "\tj " << jj << " n " << n << "\n";
+            if (!data.IsNeighbor(v, n)) {
+                return false;
+            }
+        }
+    }
+    return true;
 }

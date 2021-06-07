@@ -22,9 +22,11 @@ public:
     void PrintMatch(const Graph& data, const Graph& query,
                     const CandidateSet& cs, const Vertex &qVertex);
     void PrintVector(const std::vector<Vertex>& xs);
-    void PrintPath();
     Vertex GetExtendableVertex(const Graph &query, const CandidateSet &cs);
+    void FindRoot(const Graph &query, const CandidateSet &cs);
     void Initialize(const Graph &data, const Graph &query);
+    bool CheckEmbedding(const Graph &data, const Graph &query,
+                        const CandidateSet &cs, const std::vector<Vertex>& xs);
 
 private:
     std::vector<bool> v;
@@ -33,6 +35,7 @@ private:
     std::vector<Vertex> path;
     size_t count = 0;
     std::chrono::system_clock::time_point start;
+    Vertex root = 0;
 
 };
 
