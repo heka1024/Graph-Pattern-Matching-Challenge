@@ -13,12 +13,11 @@ Backtrack::~Backtrack() {}
 
 void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
                                 const CandidateSet &cs) {
-    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+    start = std::chrono::system_clock::now();
     Initialize(data, query);
     //Vertex vertex = GetExtendableVertex(query, cs);
     PrintMatch(data, query, cs, 0);
-    std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
-    printf("%lf [sec]\n", sec.count());
+    
 
     // DFS(data, query, cs, 0);
 
@@ -28,8 +27,14 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
 void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                            const CandidateSet& cs, const Vertex &qVertex) {
     if (qVertex == -1) {
-        cout << "a ";
-        PrintVector(path);
+        count++;
+        if (count > 100000) {
+            std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
+            printf("%lf [sec]\n", sec.count());
+            exit(0);
+        } else {
+            PrintPath();
+        }
         return;
     }
 
@@ -67,6 +72,14 @@ void Backtrack::PrintVector(const vector<Vertex>& xs) {
         cout << x << " ";
     }
     cout << "\n";
+}
+
+void Backtrack::PrintPath() {
+    printf("a ");
+    for (const Vertex& u : embedded) {
+        printf("%d ", path[u]);
+    }
+    printf("\n");
 }
 
 Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs) {
