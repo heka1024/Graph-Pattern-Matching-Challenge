@@ -10,6 +10,7 @@
 #include "common.h"
 #include "graph.h"
 #include <stack>
+#include <chrono>
 
 class Backtrack {
 public:
@@ -20,14 +21,6 @@ public:
                          const CandidateSet &cs);
     void PrintMatch(const Graph& data, const Graph& query,
                     const CandidateSet& cs, const Vertex &qVertex);
-    void DFS(const Graph& data, const Graph& query,
-             const CandidateSet& cs, const size_t it);
-    void PrintCandidate(const Graph &data, const Graph &query,
-                        const CandidateSet &cs);
-    void BruteForce(const Graph &data, const Graph &query,
-                    const CandidateSet &cs);
-    bool CheckEmbedding(const Graph &data, const Graph &query,
-                        const CandidateSet &cs, const std::vector<Vertex>& xs);
     void PrintVector(const std::vector<Vertex>& xs);
     Vertex GetExtendableVertex(const Graph &query, const CandidateSet &cs);
     void Initialize(const Graph &data, const Graph &query);
@@ -35,6 +28,7 @@ public:
 private:
     std::vector<bool> v;
     std::vector<Vertex> embedded;
+    std::vector<Vertex> not_embedded;
     std::vector<Vertex> path;
 
 };
