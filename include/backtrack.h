@@ -32,6 +32,7 @@ private:
     std::vector<Vertex> not_embedded;
     std::vector<Vertex> path;
     size_t count = 0;
+    std::chrono::system_clock::time_point start;
 
 };
 
