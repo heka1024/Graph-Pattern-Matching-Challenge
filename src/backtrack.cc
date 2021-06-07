@@ -6,6 +6,7 @@
 #include "backtrack.h"
 #include <stack>
 #include <map>
+#define null -1
 
 using namespace std;
 
@@ -36,8 +37,8 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                 ans[embedded[i]] = path[i];
             }
             printf("a "); PrintVector(ans);
+            return;
         }
-        return;
     }
 
     for (size_t i = 0; i < cs.GetCandidateSize(qVertex); i++) {
