@@ -15,9 +15,10 @@ Backtrack::~Backtrack() {}
 void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
                                 const CandidateSet &cs) {
     start = std::chrono::system_clock::now();
+    FindRoot(query, cs);
     Initialize(data, query);
     //Vertex vertex = GetExtendableVertex(query, cs);
-    PrintMatch(data, query, cs, 0);
+    PrintMatch(data, query, cs, root);
     std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
     printf("%lf [sec]\n", sec.count());
     
@@ -82,13 +83,15 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
 
 void Backtrack::PrintVector(const vector<Vertex>& xs) {
     for (const auto& x : xs) {
-        cout << x << " ";
+        printf("%d ", x);
+        // cout << x << " ";
     }
-    cout << "\n";
+    printf("\n");
+    // cout << "\n";
 }
 
 Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs) {
-    std::vector<std::pair<size_t, Vertex>> qVertices;
+    vector<pair<size_t, Vertex>> qVertices;
 
     for (Vertex notEmVertex : not_embedded) {
         for (Vertex emVertex : embedded) {
@@ -96,7 +99,8 @@ Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs
             bool extendable = query.IsNeighbor(notEmVertex, emVertex);
 
             if (extendable) {
-                qVertices.emplace_back(std::pair<size_t, Vertex>(cs.GetCandidateSize(notEmVertex), notEmVertex));
+                // qVertices.emplace_back(std::pair<size_t, Vertex>(cs.GetCandidateSize(notEmVertex), notEmVertex));
+                qVertices.emplace_back(make_pair(cs.GetCandidateSize(notEmVertex), notEmVertex));
                 break;
             }
         }
@@ -104,15 +108,25 @@ Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs
 
     if (qVertices.empty()) return -1;
 
-    std::make_heap(qVertices.begin(), qVertices.end(), greater<std::pair<size_t, Vertex>>());
+    std::make_heap(qVertices.begin(), qVertices.end(), greater<pair<size_t, Vertex>>());
 
     return qVertices.front().second;
 }
 
+void Backtrack::FindRoot(const Graph &query, const CandidateSet &cs) {
+    for (size_t i = 0; i < query.GetNumVertices(); i++) {
+        if (cs.GetCandidateSize(i) < cs.GetCandidateSize(root)) {
+            root = i;
+        }
+    }
+}
+
 void Backtrack::Initialize(const Graph &data, const Graph &query) {
     v.resize(data.GetNumVertices(), false);
-    for (size_t i = 1; i < query.GetNumVertices(); i++) {
-        not_embedded.push_back((Vertex) i);
+    for (size_t i = 0; i < query.GetNumVertices(); i++) {
+        if (root != (Vertex) i) {
+            not_embedded.push_back((Vertex) i);
+        }
     }
 }
 
