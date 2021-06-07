@@ -4,7 +4,7 @@
  */
 
 #include "backtrack.h"
-#include <stack>
+#define null -1
 
 using namespace std;
 
@@ -15,25 +15,23 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
                                 const CandidateSet &cs) {
     start = std::chrono::system_clock::now();
     Initialize(data, query);
-    //Vertex vertex = GetExtendableVertex(query, cs);
     PrintMatch(data, query, cs, 0);
-    
-
-    // DFS(data, query, cs, 0);
-
-    // BruteForce(data, query, cs);
+    //std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
+    //printf("elapsed time: %lf [sec], count: %d\n", sec.count(), count);
 }
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                            const CandidateSet& cs, const Vertex &qVertex) {
-    if (qVertex == -1) {
-        count++;
+    if (qVertex == null) {
         if (count > 100000) {
             std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
-            printf("%lf [sec]\n", sec.count());
+            printf("elapsed time: %lf [sec], count: %d\n", sec.count(), count);
             exit(0);
-        } else {
-            PrintPath();
+            //return;
+        } else if (!path.empty()){
+            //PrintPath();
+            PrintVector(path);
+            count++;
         }
         return;
     }
@@ -50,7 +48,7 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
         not_embedded.erase(std::remove(not_embedded.begin(), not_embedded.end(), qVertex), not_embedded.end());
         bool gotoNext = true;
 
-        for (size_t p = 0; p < embedded.size(); p++) {
+        for (size_t p = 0; p < embedded.size() - 1; p++) {
             if (query.IsNeighbor(embedded[p], qVertex) && !data.IsNeighbor(path[p], current_candidate)) {
                 gotoNext = false;
                 break;
@@ -97,7 +95,7 @@ Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs
         }
     }
 
-    if (qVertices.empty()) return -1;
+    if (qVertices.empty()) return null;
 
     std::make_heap(qVertices.begin(), qVertices.end(), greater<std::pair<size_t, Vertex>>());
 
