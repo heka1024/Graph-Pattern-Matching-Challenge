@@ -17,38 +17,26 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
     start = std::chrono::system_clock::now();
     FindRoot(query, cs);
     Initialize(data, query);
-    //Vertex vertex = GetExtendableVertex(query, cs);
     PrintMatch(data, query, cs, root);
     std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
     printf("%lf [sec]\n", sec.count());
-    
-
-    // DFS(data, query, cs, 0);
-
-    // BruteForce(data, query, cs);
 }
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                            const CandidateSet& cs, const Vertex &qVertex) {
     if (qVertex == -1) {
         count++;
-        // if (count > 100000) {
-            // printf("%lf [sec]\n", sec.count());
-            // exit(0);
-        // } else {
+        if (count > 100000) {
+            std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
+            printf("%lf [sec]\n", sec.count());
+            exit(0);
+        } else {
             vector<Vertex> ans(query.GetNumVertices(), -1);
             for (size_t i = 0; i < embedded.size(); i++) {
                 ans[embedded[i]] = path[i];
             }
-            // printf("path "); PrintVector(path);
-            // printf("order "); PrintVector(embedded);
             printf("a "); PrintVector(ans);
-            // if (CheckEmbedding(data, query, cs, ans)) {
-            //     printf("good!\n");
-            // } else {
-            //     printf("wron!\n");
-            // }
-        // }
+        }
         return;
     }
 
