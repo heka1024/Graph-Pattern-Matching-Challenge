@@ -5,6 +5,7 @@
 
 #include "backtrack.h"
 #include <stack>
+#include <map>
 
 using namespace std;
 
@@ -17,6 +18,8 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
     Initialize(data, query);
     //Vertex vertex = GetExtendableVertex(query, cs);
     PrintMatch(data, query, cs, 0);
+    std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
+    printf("%lf [sec]\n", sec.count());
     
 
     // DFS(data, query, cs, 0);
@@ -28,13 +31,23 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                            const CandidateSet& cs, const Vertex &qVertex) {
     if (qVertex == -1) {
         count++;
-        if (count > 100000) {
-            std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
-            printf("%lf [sec]\n", sec.count());
-            exit(0);
-        } else {
-            PrintPath();
-        }
+        // if (count > 100000) {
+            // printf("%lf [sec]\n", sec.count());
+            // exit(0);
+        // } else {
+            vector<Vertex> ans(query.GetNumVertices(), -1);
+            for (size_t i = 0; i < embedded.size(); i++) {
+                ans[embedded[i]] = path[i];
+            }
+            // printf("path "); PrintVector(path);
+            // printf("order "); PrintVector(embedded);
+            printf("a "); PrintVector(ans);
+            // if (CheckEmbedding(data, query, cs, ans)) {
+            //     printf("good!\n");
+            // } else {
+            //     printf("wron!\n");
+            // }
+        // }
         return;
     }
 
@@ -74,14 +87,6 @@ void Backtrack::PrintVector(const vector<Vertex>& xs) {
     cout << "\n";
 }
 
-void Backtrack::PrintPath() {
-    printf("a ");
-    for (const Vertex& u : embedded) {
-        printf("%d ", path[u]);
-    }
-    printf("\n");
-}
-
 Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs) {
     std::vector<std::pair<size_t, Vertex>> qVertices;
 
@@ -109,4 +114,29 @@ void Backtrack::Initialize(const Graph &data, const Graph &query) {
     for (size_t i = 1; i < query.GetNumVertices(); i++) {
         not_embedded.push_back((Vertex) i);
     }
+}
+
+bool Backtrack::CheckEmbedding(const Graph &data, const Graph &query,
+                               const CandidateSet &cs, const vector<Vertex>& xs) {
+    const size_t len = xs.size();
+
+    for (size_t i = 0; i < len; i++) {
+        const Vertex u = i, v = xs[i];
+        // cout << "u " << u << " v " << v << "\n";
+
+        if (data.GetLabel(v) != query.GetLabel(u)) {
+            return false;
+        }
+
+        for (size_t j = query.GetNeighborStartOffset(u); j < query.GetNeighborEndOffset(u); j++) {
+            const Vertex jj = query.GetNeighbor(j);
+            const Vertex n = static_cast<Vertex>(xs[jj]);
+
+            // cout << "\tj " << jj << " n " << n << "\n";
+            if (!data.IsNeighbor(v, n)) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
