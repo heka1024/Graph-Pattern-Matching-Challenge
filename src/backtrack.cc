@@ -28,8 +28,12 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
 void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                            const CandidateSet& cs, const Vertex &qVertex) {
     if (qVertex == -1) {
-        cout << "a ";
-        PrintVector(path);
+        count++;
+        if (count > 100000) {
+            exit(0);
+        } else {
+            PrintPath();
+        }
         return;
     }
 
@@ -67,6 +71,14 @@ void Backtrack::PrintVector(const vector<Vertex>& xs) {
         cout << x << " ";
     }
     cout << "\n";
+}
+
+void Backtrack::PrintPath() {
+    printf("a ");
+    for (const Vertex& u : embedded) {
+        printf("%d ", path[u]);
+    }
+    printf("\n");
 }
 
 Vertex Backtrack::GetExtendableVertex(const Graph &query, const CandidateSet &cs) {
