@@ -18,9 +18,8 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
     start = std::chrono::system_clock::now();
     FindRoot(query, cs);
     Initialize(data, query);
+    printf("t %ld\n", query.GetNumVertices());
     PrintMatch(data, query, cs, root);
-    std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
-    printf("%lf [sec]\n", sec.count());
 }
 
 void Backtrack::PrintMatch(const Graph& data, const Graph& query,
@@ -28,7 +27,6 @@ void Backtrack::PrintMatch(const Graph& data, const Graph& query,
     if (qVertex == null) {
         if (count > 100000) {
             std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
-            printf("elapsed time: %lf [sec], count: %d\n", sec.count(), count);
             exit(0);
         } else {
             vector<Vertex> ans(query.GetNumVertices(), -1);
