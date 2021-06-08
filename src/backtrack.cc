@@ -25,6 +25,7 @@ void Backtrack::PrintAllMatches(const Graph &data, const Graph &query,
 void Backtrack::PrintMatch(const Graph& data, const Graph& query,
                            const CandidateSet& cs, const Vertex &qVertex) {
     if (qVertex == null) {
+        count++;
         if (count > 100000) {
             std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
             exit(0);
